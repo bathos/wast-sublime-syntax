@@ -1,0 +1,1 @@
+# wast-sublime-syntax
