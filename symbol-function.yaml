@@ -1,0 +1,7 @@
+# [PackageDev] target_format: plist, ext: tmPreferences
+name: Function Symbol
+scope: source.wast entity.name.function.wast
+settings:
+  showInSymbolList: 1
+  showInIndexedSymbolList: 0
+  symbolTransformation: s/(.+)/func $1/;

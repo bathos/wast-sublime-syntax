@@ -1,0 +1,7 @@
+# [PackageDev] target_format: plist, ext: tmPreferences
+name: Type Symbol
+scope: source.wast entity.name.type.wast
+settings:
+  showInSymbolList: 1
+  showInIndexedSymbolList: 0
+  symbolTransformation: s/(.+)/type $1/;

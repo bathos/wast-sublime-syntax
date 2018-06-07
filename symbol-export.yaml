@@ -1,0 +1,7 @@
+# [PackageDev] target_format: plist, ext: tmPreferences
+name: Export Symbol
+scope: source.wast entity.name.export.wast
+settings:
+  showInSymbolList: 1
+  showInIndexedSymbolList: 1
+  symbolTransformation: s/(.+)/module export $1/;

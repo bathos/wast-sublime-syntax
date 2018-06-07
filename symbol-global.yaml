@@ -1,0 +1,7 @@
+# [PackageDev] target_format: plist, ext: tmPreferences
+name: Global Symbol
+scope: source.wast meta.s-expression.global.wast variable.other.wast
+settings:
+  showInSymbolList: 1
+  showInIndexedSymbolList: 0
+  symbolTransformation: s/(.+)/global $1/;
