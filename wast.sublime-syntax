@@ -272,6 +272,9 @@ contexts:
     - match: 'if{{IDTERM}}'
       scope: keyword.control.conditional.wast
       push: [ label, if_else_end, else, instructions, resulttype, label ]
+    - match: 'try{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      push: [ label, try_catch_delegate, instructions, resulttype, label ]
     - include: instructions_plain
     - include: instructions_folded
   instructions_folded:
@@ -865,6 +868,26 @@ contexts:
     - include: param
     - match: '(?=.)'
       pop: true
+  try_catch_delegate:
+    - meta_scope: meta.block.wast
+    - match: 'delegate{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      set: [ reference ]
+    - match: '(?=.)'
+      set: [ try_catch ]
+  try_catch:
+    - meta_scope: meta.block.wast
+    - match: 'catch{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      push: [ instructions, reference ]
+    - match: 'catch_all{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      push: [ instructions ]
+    - match: 'end{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      pop: true
+    - match: '.'
+      scope: invalid.illegal.wast
   typeuse:
     - match: (?=.)
       set:
