@@ -15,7 +15,7 @@ variables:
   FLOATO: 'f32\.(?:reinterpret[/_]i32|demote[/_]f64)|f64\.(?:promote[/_]f32|reinterpret[/_]i64)'
   FLOATP: '[+-]?(?:inf|nan(?::0x{{HEXNUM}})?|{{HEXFLT}}|{{DECFLT}}){{IDTERM}}'
   FLOW_1: '(?:nop|return|unreachable){{IDTERM}}'
-  FLOW_2: 'br(?:_if)?{{IDTERM}}'
+  FLOW_2: '(?:br(?:_if)?|throw|rethrow){{IDTERM}}'
   FLOW_3: 'br_table{{IDTERM}}'
   HEXFLT: '0x{{HEXNUM}}(?=[Pp.])(\.{{HEXFRC}})?(?:[Pp][+-]?{{DECNUM}})?'
   HEXFRC: (?:{{HEXNUM}})?
@@ -272,6 +272,9 @@ contexts:
     - match: 'if{{IDTERM}}'
       scope: keyword.control.conditional.wast
       push: [ label, if_else_end, else, instructions, resulttype, label ]
+    - match: 'try{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      push: [ label, try_catch_delegate, instructions, resulttype, label ]
     - include: instructions_plain
     - include: instructions_folded
   instructions_folded:
@@ -339,6 +342,58 @@ contexts:
           - match: '.'
             scope: invalid.illegal.wast
         - instructions_folded
+        - resulttype
+        - label
+    - match: '(\(){{WHITES}}*(try){{IDTERM}}'
+      captures:
+        1: punctuation.definition.block.begin.wast
+        2: keyword.control.flow.wast
+      push:
+        - - meta_scope: meta.s-expression.instruction.wast
+          - match: '\)'
+            scope: punctuation.definition.block.end.wast
+            pop: true
+          - match: '(\(){{WHITES}}*(do){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - instructions
+          - match: '(\(){{WHITES}}*(delegate){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - reference
+          - match: '(\(){{WHITES}}*(catch){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - instructions
+              - reference
+          - match: '(\(){{WHITES}}*(catch_all){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - instructions
         - resulttype
         - label
     # The lookahead here is a hack for if-then to avoid more copypasta contexts
@@ -545,7 +600,7 @@ contexts:
             pop: true
           - match: '.'
             scope: invalid.illegal.wast
-        - - match: '(\(){{WHITES}}*(func|global|memory|table){{IDTERM}}'
+        - - match: '(\(){{WHITES}}*(func|global|memory|table|tag){{IDTERM}}'
             captures:
               1: punctuation.definition.exportdesc.begin.wast
               2: storage.modifier.wast
@@ -632,12 +687,19 @@ contexts:
             captures:
               1: entity.name.type.wast
             pop: true
+  modulefield_tag:
+    - match: '(\(){{WHITES}}*(tag){{IDTERM}}'
+      captures:
+        1: punctuation.definition.tag.begin.wast
+        2: storage.type.constant.wast storage.type.tag.wast
+      push: [ tag_end, tag_type, tag_import, abbreviated_export, tag_name ]
   modulefields_IMPORT_START:
     - include: modulefield_data
     - include: modulefield_element
     - include: modulefield_export
     - include: modulefield_import
     - include: modulefield_type
+    - include: modulefield_tag
     - match: '{{STARTS}}'
       captures:
         1: punctuation.definition.start.begin.wast
@@ -651,6 +713,7 @@ contexts:
     - include: modulefield_export
     - include: modulefield_import
     - include: modulefield_type
+    - include: modulefield_tag
     - match: '(?=.)'
       set: modulefields_REST
   modulefields_REST:
@@ -662,6 +725,7 @@ contexts:
     - include: modulefield_memory
     - include: modulefield_table
     - include: modulefield_type
+    - include: modulefield_tag
     - match: '(?=.)'
       pop: true
   modulefields_START:
@@ -831,6 +895,51 @@ contexts:
       captures:
         1: entity.name.table.wast
       pop: true
+  tag_end:
+    - meta_scope: meta.s-expression.tag.wast
+    - match: '\)'
+      scope: punctuation.definition.tag.end.wast
+      pop: true
+    - match: '.'
+      scope: invalid.illegal.wast
+      pop: true
+  tag_import:
+    - match: '(\(){{WHITES}}*(import){{IDTERM}}'
+      captures:
+        1: punctuation.definition.import.begin.wast
+        2: keyword.other.import.wast
+      set: [ import_end, import_names ]
+    - match: '(?=.)'
+      pop: true
+  tag_name:
+    - match: '({{IDNAME}})|'
+      captures:
+        1: entity.name.tag.wast
+      pop: true
+  tag_type:
+    - include: param
+    - match: '(?=.)'
+      pop: true
+  try_catch_delegate:
+    - meta_scope: meta.block.wast
+    - match: 'delegate{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      set: [ reference ]
+    - match: '(?=.)'
+      set: [ try_catch ]
+  try_catch:
+    - meta_scope: meta.block.wast
+    - match: 'catch{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      push: [ instructions, reference ]
+    - match: 'catch_all{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      push: [ instructions ]
+    - match: 'end{{IDTERM}}'
+      scope: keyword.control.flow.wast
+      pop: true
+    - match: '.'
+      scope: invalid.illegal.wast
   typeuse:
     - match: (?=.)
       set:
