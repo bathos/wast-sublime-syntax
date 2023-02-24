@@ -396,6 +396,21 @@ contexts:
               - instructions
         - resulttype
         - label
+    - match: '(\(){{WHITES}}*(pop){{IDTERM}}'
+      captures:
+        1: punctuation.definition.instruction.begin.wast
+        2: support.function.numeric.wast
+      push:
+        - - meta_scope: meta.s-expression.instruction.wast
+          - match: '\)'
+            scope: punctuation.definition.instruction.end.wast
+            pop: true
+          - match: '.'
+            scope: invalid.illegal.wast
+        - - match: '{{VALTYP}}'
+            scope: support.type.wast
+          - match: '(?=.)'
+            pop: true
     # The lookahead here is a hack for if-then to avoid more copypasta contexts
     - match: '\((?!{{WHITES}}*then{{IDTERM}})'
       scope: punctuation.definition.instruction.begin.wast
