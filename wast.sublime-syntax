@@ -56,8 +56,8 @@ contexts:
             scope: invalid.illegal.wast
     - match: '(?=.)'
       pop: true
-  anyfunc:
-    - match: 'anyfunc{{IDTERM}}'
+  funcref:
+    - match: 'funcref{{IDTERM}}'
       scope: support.type.wast
       pop: true
     - match: '.'
@@ -237,7 +237,7 @@ contexts:
       captures:
         1: punctuation.definition.table.begin.wast
         2: storage.modifier.wast
-      set: [ table_end, anyfunc, limit, table_name ]
+      set: [ table_end, funcref, limit, table_name ]
     - match: '.'
       scope: invalid.illegal.wast
   import_end:
@@ -865,8 +865,8 @@ contexts:
       captures:
         1: punctuation.definition.import.begin.wast
         2: keyword.other.import.wast
-      set: [ anyfunc, limit, import_end, import_names ]
-    - match: 'anyfunc{{IDTERM}}'
+      set: [ funcref, limit, import_end, import_names ]
+    - match: 'funcref{{IDTERM}}'
       scope: support.type.wast
       set:
         - match: '(\(){{WHITES}}*(elem){{IDTERM}}'
@@ -882,7 +882,7 @@ contexts:
               - match: '.'
                 scope: invalid.illegal.wast
     - match: (?=.)
-      set: [ anyfunc, limit ]
+      set: [ funcref, limit ]
   table_end:
     - meta_scope: meta.s-expression.table.wast
     - match: '\)'
