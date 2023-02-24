@@ -15,7 +15,7 @@ variables:
   FLOATO: 'f32\.reinterpret/i32|f64\.(?:promote/f32|reinterpret/i64)'
   FLOATP: '[+-]?(?:inf|nan(?::0x{{HEXNUM}})?|{{HEXFLT}}|{{DECFLT}}){{IDTERM}}'
   FLOW_1: '(?:nop|return|unreachable){{IDTERM}}'
-  FLOW_2: 'br(?:_if)?{{IDTERM}}'
+  FLOW_2: '(?:br(?:_if)?|throw|rethrow){{IDTERM}}'
   FLOW_3: 'br_table{{IDTERM}}'
   HEXFLT: '0x{{HEXNUM}}(?=[Pp.])(\.{{HEXFRC}})?(?:[Pp][+-]?{{DECNUM}})?'
   HEXFRC: (?:{{HEXNUM}})?
