@@ -344,6 +344,58 @@ contexts:
         - instructions_folded
         - resulttype
         - label
+    - match: '(\(){{WHITES}}*(try){{IDTERM}}'
+      captures:
+        1: punctuation.definition.block.begin.wast
+        2: keyword.control.flow.wast
+      push:
+        - - meta_scope: meta.s-expression.instruction.wast
+          - match: '\)'
+            scope: punctuation.definition.block.end.wast
+            pop: true
+          - match: '(\(){{WHITES}}*(do){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - instructions
+          - match: '(\(){{WHITES}}*(delegate){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - reference
+          - match: '(\(){{WHITES}}*(catch){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - instructions
+              - reference
+          - match: '(\(){{WHITES}}*(catch_all){{IDTERM}}'
+            captures:
+              1: punctuation.definition.block.begin.wast
+              2: keyword.control.flow.wast
+            push:
+              - - meta_scope: meta.s-expression.instruction.wast
+                - match: '\)'
+                  scope: punctuation.definition.block.end.wast
+                  pop: true
+              - instructions
+        - resulttype
+        - label
     # The lookahead here is a hack for if-then to avoid more copypasta contexts
     - match: '\((?!{{WHITES}}*then{{IDTERM}})'
       scope: punctuation.definition.instruction.begin.wast
