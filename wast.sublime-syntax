@@ -28,6 +28,7 @@ variables:
   INTERO: 'i32\.(?:reinterpret_f32|trunc_f(?:32|64)_[su]|wrap_i64)|i64\.(?:extend_i32_[su]|trunc_f(?:32|64)_[su]|reinterpret[/_]f64)'
   MEMOPS: '(?:f(?:32|64)\.(?:load|store)|i(?:32|64)\.(?:load(?:(?:8_|16_)[su])?|store(?:8|16)?)|i64\.(?:load32_[su]|store32)){{IDTERM}}'
   MEMOP2: 'memory\.(?:grow|size){{IDTERM}}'
+  MEMOP3: 'memory\.(?:fill|copy)'
   NCONST: '[fi](?:32|64)\.const{{IDTERM}}'
   NUMOPS: '(?:{{FLOATC}}|{{FLOATO}}|{{INTERC}}|{{INTERO}}){{IDTERM}}'
   STARTS: '(\(){{WHITES}}*(start){{IDTERM}}'
@@ -450,6 +451,8 @@ contexts:
       push: memarg
     - match: '{{MEMOP2}}'
       scope: support.function.memory.wast
+    - match: '{{MEMOP3}}'
+      scope: support.function.memory.wast
     - match: '{{NCONST}}'
       scope: support.function.numeric.wast
       push: number
@@ -485,6 +488,9 @@ contexts:
       scope: support.function.numeric.wast
       set: memarg
     - match: '{{MEMOP2}}'
+      scope: support.function.memory.wast
+      pop: true
+    - match: '{{MEMOP3}}'
       scope: support.function.memory.wast
       pop: true
     - match: '{{NCONST}}'
